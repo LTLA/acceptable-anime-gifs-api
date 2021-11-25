@@ -100,7 +100,7 @@ router.get("/random", ({ params, query }) => {
         "url": file_url
     }
 
-    return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify(payload), { headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" } });
 })
 
 router.get("/random/markdown", ({ params, query }) => {
@@ -122,13 +122,13 @@ router.get("/random/markdown", ({ params, query }) => {
     var char_str = char_info.join("")
 
     var resp_str = char_str + " from [" + show.name + "](https://myanimelist.net/anime/" + chosen.show_id + ")\n\n![" + chosen.path + "](" + file_url + ")"
-    return new Response(resp_str, { headers: { "Content-Type": "text/markdown; charset=utf-8" } })
+    return new Response(resp_str, { headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "text/markdown; charset=utf-8" } })
 })
 
 router.get("/random/gif", ({ params, query }) => {
     var chosen = choose_random_gif(query)
     var file_url = base_url + chosen.path 
-    return new Response(null, { headers: { "Location": file_url }, status: 302 })
+    return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', "Location": file_url }, status: 302 })
 })
 
 router.get("/shows", (params) => {
@@ -136,7 +136,7 @@ router.get("/shows", (params) => {
     for (const x in show_info) {
         output[x] = show_info[x].name
     }
-    return new Response(JSON.stringify(output), { headers: { "Content-Type": "application/json" } })
+    return new Response(JSON.stringify(output), { headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" } })
 })
 
 router.get("/sentiments", (params) => {
@@ -144,7 +144,7 @@ router.get("/sentiments", (params) => {
     for (const x in by_sentiment) {
         output.push(x)
     }
-    return new Response(JSON.stringify(output), { headers: { "Content-Type": "application/json" } })
+    return new Response(JSON.stringify(output), { headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" } })
 })
 
 router.all("*", () => new Response("404, not found!", { status: 404 }))
