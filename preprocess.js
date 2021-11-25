@@ -3,7 +3,7 @@
 
 const fs = require('fs')
 
-let showdata = fs.readFileSync('shows.js')
+let showdata = fs.readFileSync('shows.json')
 let shows = JSON.parse(showdata);
 
 var show_info = {}
@@ -14,7 +14,7 @@ for (const show of shows) {
     show_info[id] = show
 }
 
-let gifdata = fs.readFileSync('gifs.js')
+let gifdata = fs.readFileSync('gifs.json')
 let gifs = JSON.parse(gifdata);
 
 var by_sentiment = {}
