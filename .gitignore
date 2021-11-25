@@ -4,3 +4,5 @@ worker/
 package-lock.json
 manifest.js
 dist/
+shows.json
+gifs.json
