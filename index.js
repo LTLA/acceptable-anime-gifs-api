@@ -87,9 +87,9 @@ router.get("/random", ({ params, query }) => {
     var file_url = base_url + chosen.path 
 
     var show = show_info[chosen.show_id]
-    var char_info = {}
+    var char_info = []
     for (const x of chosen.characters) {
-        char_info[x] = show.characters[x]
+        char_info.push({ "name": x, "id": show.characters[x] })
     }
 
     var payload = {
@@ -132,9 +132,9 @@ router.get("/random/gif", ({ params, query }) => {
 })
 
 router.get("/shows", (params) => {
-    var output = {}
+    var output = []
     for (const x in show_info) {
-        output[x] = show_info[x].name
+        output.push({ "id": x, "name": show_info[x].name })
     }
     return new Response(JSON.stringify(output), { headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" } })
 })
