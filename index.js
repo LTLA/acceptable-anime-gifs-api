@@ -4,7 +4,7 @@ import { Router } from 'itty-router'
 const router = Router()
 
 router.get("/", () => {
-  return new Response("Welcome to the Acceptable Anime GIF API. Hit /random to get a random GIF.")
+    return new Response(null, { headers: { "Location": "https://ltla.github.io/acceptable-anime-gifs-api" }, status: 301 })
 })
 
 var data = require("./manifest.js")

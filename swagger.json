@@ -1,0 +1,187 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Acceptable Anime GIF API",
+        "description": "Obtain a random acceptable anime GIF from the [registry](https://github.com/LTLA/acceptable-anime-gifs).",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://anime-gifs.aaron-lun.workers.dev",
+            "description": "Production instance of the API"
+        }
+    ],
+    "paths": {
+        "/random": {
+            "get": {
+                "summary": "Metadata for a randomly chosen GIF.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/shows_filter" },
+                    { "$ref": "#/components/parameters/sentiments_filter" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metadata for a random GIF.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "path": {
+                                            "type": "string",
+                                            "description": "Path to the GIF inside the registry."
+                                        },
+                                        "show_id": {
+                                            "type": "string",
+                                            "description": "MyAnimeList identifier for the show."
+                                        },
+                                        "show_name": {
+                                            "type": "string",
+                                            "description": "Name of the show on MyAnimeList."
+                                        },
+                                        "characters": {
+                                            "type": "array",
+                                            "description": "List of all characters involved in the GIF.",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Name of the character."
+                                                    },
+                                                    "id": {
+                                                        "type": "string",
+                                                        "description": "MyAnimeList identifier for the character."
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "description": "URL to the GIF image."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "No valid GIFs for the specified combination of sentiment/show filters."
+                    }
+                }
+            }
+        },
+        "/random/markdown": {
+            "get": {
+                "summary": "Markdown describing and linking to a randomly chosen GIF.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/shows_filter" },
+                    { "$ref": "#/components/parameters/sentiments_filter" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Markdown chunk containing a description of and link to a random GIF.",
+                        "content": {
+                            "text/markdown": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "No valid GIFs for the specified combination of sentiment/show filters."
+                    }
+                }
+            }
+        },
+        "/random/gif": {
+            "get": {
+                "summary": "Redirect to a randomly chosen GIF.",
+                "parameters": [
+                    { "$ref": "#/components/parameters/shows_filter" },
+                    { "$ref": "#/components/parameters/sentiments_filter" }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to the GIF image."
+                    },
+                    "400": {
+                        "description": "No valid GIFs for the specified combination of sentiment/show filters."
+                    }
+                }
+            }
+        },
+        "/shows": {
+            "get": {
+                "summary": "List all available shows.",
+                "responses": {
+                    "200": {
+                        "description": "List of available shows.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "MyAnimeList identifier for the show."
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Name of the show."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sentiments": {
+            "get": {
+                "summary": "List all available sentiments.",
+                "responses": {
+                    "200": {
+                        "description": "List of available sentiments.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Name of the sentiment."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "shows_filter": {
+                "in": "query",
+                "name": "shows",
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Comma-separated list of shows with which to restrict the random GIF choice. Shows are identified according to their MyAnimeList identifiers, see `/shows` for a list of available shows."
+            },
+            "sentiments_filter": {
+                "in": "query",
+                "name": "sentiments",
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Comma-separated list of sentiments with which to restrict the random GIF choice. Shows `/sentiments` for a list of available shows."
+            }
+        }
+    }
+}    

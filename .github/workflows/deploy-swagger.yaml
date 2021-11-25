@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - master
+
+name: Deploy Swagger UI 
+
+jobs:
+  deploy-swagger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+      - name: Fetch the Swagger UI
+        run: |
+            curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v4.1.1.tar.gz > swagger.tar.gz
+            tar -xf swagger.tar.gz
+      - name: Edit the JSON path
+        run: | 
+            cat swagger-ui-4.1.1/dist/index.html | sed "s/https:\/\/petstore.swagger.io\/v2\/swagger.json/https:\/\/raw.githubusercontent.com\/LTLA\/acceptable-anime-gifs-api\/master\/swagger.json/" > blah.html
+            mv blah.html swagger-ui-4.1.1/dist/index.html
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.6
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: swagger-ui-4.1.1/dist # The folder the action should deploy.
+
