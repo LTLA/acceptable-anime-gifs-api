@@ -14,7 +14,7 @@ Currently we provide a single endpoint:
 GET /random
 ```
 
-This returns information for a single randomly chosen GIF.
+This returns information for a single randomly chosen GIF hosted on GitHub.
 By default, this is formatted with Markdown for immediate use in, e.g., Slack messages:
 
 ```
@@ -23,7 +23,8 @@ By default, this is formatted with Markdown for immediate use in, e.g., Slack me
 ![10165_Nichijou/0005.gif](https://raw.githubusercontent.com/LTLA/acceptable-anime-gifs/master/registry/10165_Nichijou/0005.gif)
 ```
 
-We can get the underlying data by specifying `?formatted=false`, in which case the API responds with some JSON describing the GIF location and metadata:
+We can get the underlying data by specifying `?formatted=false`, in which case the API responds with some JSON describing the GIF location (`url`) and some metadata.
+The metadata includes the [MyAnimeList](https://myanimelist.net) identifier and name for the show, along with the names and IDs of the characters involved.
 
 ```
 {
@@ -50,7 +51,12 @@ To keep things simple, we package the GIF manifest into the application rather t
 This is done by running the `preprocess.js` script on the manifest artifacts produced by the [GIF registry's workflows](https://github.com/LTLA/acceptable-anime-gifs/actions),
 which produces a `manifest.js` Node module that is imported by `index.js`.
 The API can then directly interrogate the metadata for each GIF without the need for further fetch requests.
-However, the GIFs themselves are still externally hosted (on GitHub's CDN) and it is assumed that the clients will retrieve them separately.
+
+```sh
+curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/gifs.json > gifs.json
+curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/shows.json > shows.json
+node preprocess.js
+```
 
 Deployment is performed using the usual `wrangler publish` method for Cloudflare Workers.
 This repository contains a GitHub Action to redeploy on a push to `master` and nightly.
