@@ -86,41 +86,43 @@ router.get("/random", ({ params, query }) => {
     var chosen = choose_random_gif(query)
     var file_url = base_url + chosen.path 
 
-    if ("formatted" in query && query["formatted"] == "false") {
-        var show = show_info[chosen.show_id]
-        var char_info = {}
-        for (const x of chosen.characters) {
-            char_info[x] = show.characters[x]
-        }
-
-        var payload = {
-            "path": chosen.path,
-            "show_id": chosen.show_id,
-            "show_name": show.name,
-            "characters": char_info,
-            "url": file_url
-        }
-
-        return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
-    } else {
-        var show = show_info[chosen.show_id]
-
-        var char_info = []
-        for (const x of chosen.characters) {
-            if (char_info.length) {
-                char_info.push(", ")
-            }
-            char_info.push("[" + x + "]" + "(https://myanimelist.net/character/" + show.characters[x] + ")")
-        }
-
-        if (char_info.length > 1) {
-            char_info[char_info.length - 2] = " and "
-        }
-        var char_str = char_info.join("")
-
-        var resp_str = char_str + " from [" + show.name + "](https://myanimelist.net/anime/" + chosen.show_id + ")\n\n![" + chosen.path + "](" + file_url + ")"
-        return new Response(resp_str, { headers: { "Content-Type": "text/markdown; charset=utf-8" } })
+    var show = show_info[chosen.show_id]
+    var char_info = {}
+    for (const x of chosen.characters) {
+        char_info[x] = show.characters[x]
     }
+
+    var payload = {
+        "path": chosen.path,
+        "show_id": chosen.show_id,
+        "show_name": show.name,
+        "characters": char_info,
+        "url": file_url
+    }
+
+    return new Response(JSON.stringify(payload), { headers: { "Content-Type": "application/json" } });
+})
+
+router.get("/random/markdown", ({ params, query }) => {
+    var chosen = choose_random_gif(query)
+    var file_url = base_url + chosen.path 
+    var show = show_info[chosen.show_id]
+
+    var char_info = []
+    for (const x of chosen.characters) {
+        if (char_info.length) {
+            char_info.push(", ")
+        }
+        char_info.push("[" + x + "]" + "(https://myanimelist.net/character/" + show.characters[x] + ")")
+    }
+
+    if (char_info.length > 1) {
+        char_info[char_info.length - 2] = " and "
+    }
+    var char_str = char_info.join("")
+
+    var resp_str = char_str + " from [" + show.name + "](https://myanimelist.net/anime/" + chosen.show_id + ")\n\n![" + chosen.path + "](" + file_url + ")"
+    return new Response(resp_str, { headers: { "Content-Type": "text/markdown; charset=utf-8" } })
 })
 
 router.get("/random/gif", ({ params, query }) => {

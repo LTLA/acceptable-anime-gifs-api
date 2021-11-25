@@ -10,29 +10,12 @@ An existing deployment is available [here](https://anime-gifs.aaron-lun.workers.
 
 ### Getting a random GIF
 
-The most important endpoint is:
-
 ```
 GET /random
 ```
 
-This returns information for a single randomly chosen GIF hosted on GitHub.
-By default, this is formatted with Markdown for immediate use in, e.g., Slack messages:
-
-```
-[Yuuko Aioi](https://myanimelist.net/character/10418), [Mai Minakami](https://myanimelist.net/character/10421) and [Mio Naganohara](https://myanimelist.net/character/40081) from [Nichijou](https://myanimelist.net/anime/10165)
-
-![10165_Nichijou/0005.gif](https://raw.githubusercontent.com/LTLA/acceptable-anime-gifs/master/registry/10165_Nichijou/0005.gif)
-```
-
-We can access the underlying metadata by specifying:
-
-```
-GET /random?formatted=false
-```
-
-in which case the API responds with some JSON describing the GIF location (`url`) and some metadata.
-The metadata includes the [MyAnimeList](https://myanimelist.net) identifier and name for the show, along with the names and IDs of the characters involved.
+returns metadata for a single randomly chosen GIF. 
+This includes the location of the GIF, the [MyAnimeList](https://myanimelist.net) identifier and name for the show, and the names and IDs of the characters involved.
 
 ```
 {
@@ -47,13 +30,25 @@ The metadata includes the [MyAnimeList](https://myanimelist.net) identifier and 
 }
 ```
 
-Alternatively, we can use:
+Alternatively, we can use
+
+```
+GET /random/markdown
+```
+
+to obtain a message that is formatted with Markdown for immediate use in, e.g., Slack messages:
+
+```
+[Yuuko Aioi](https://myanimelist.net/character/10418), [Mai Minakami](https://myanimelist.net/character/10421) and [Mio Naganohara](https://myanimelist.net/character/40081) from [Nichijou](https://myanimelist.net/anime/10165)
+
+![10165_Nichijou/0005.gif](https://raw.githubusercontent.com/LTLA/acceptable-anime-gifs/master/registry/10165_Nichijou/0005.gif)
+```
+
+To obtain a redirect to the GIF itself, we use:
 
 ```
 GET /random/gif
 ```
-
-to obtain a redirect to the GIF itself.
 
 ### Applying filters
 
