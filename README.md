@@ -6,9 +6,11 @@ This repository implements a REST API for serving anime GIFs from the [Acceptabl
 The API is written with Node.js and is intended to be deployed on a Cloudflare Worker.
 An existing deployment is available [here](https://anime-gifs.aaron-lun.workers.dev) on the Cloudflare's free tier.
 
-## Getting a random GIF
+## Available endpoints
 
-Currently we provide a single endpoint:
+### Getting a random GIF
+
+The most important endpoint is:
 
 ```
 GET /random
@@ -23,7 +25,13 @@ By default, this is formatted with Markdown for immediate use in, e.g., Slack me
 ![10165_Nichijou/0005.gif](https://raw.githubusercontent.com/LTLA/acceptable-anime-gifs/master/registry/10165_Nichijou/0005.gif)
 ```
 
-We can get the underlying data by specifying `?formatted=false`, in which case the API responds with some JSON describing the GIF location (`url`) and some metadata.
+We can access the underlying metadata by specifying:
+
+```
+GET /random?formatted=false
+```
+
+in which case the API responds with some JSON describing the GIF location (`url`) and some metadata.
 The metadata includes the [MyAnimeList](https://myanimelist.net) identifier and name for the show, along with the names and IDs of the characters involved.
 
 ```
@@ -39,11 +47,36 @@ The metadata includes the [MyAnimeList](https://myanimelist.net) identifier and 
 }
 ```
 
+Alternatively, we can use:
+
+```
+GET /random/gif
+```
+
+to obtain a redirect to the GIF itself.
+
+### Applying filters
+
 We can filter for particular shows by providing a comma-separated list of their [MyAnimeList](https://myanimelist.net) identifiers.
-For example, to obtain GIFs related to [Yuru Camp](https://myanimelist.net/anime/34798) or [K-On!](https://myanimelist.net/anime/5680), we can use `?shows=34798,5680`.
+For example, to obtain GIFs related to [Yuru Camp](https://myanimelist.net/anime/34798) or [K-On!](https://myanimelist.net/anime/5680), we can use:
+
+```
+GET /random?shows=34798,5680
+```
 
 Additionaly, we can filter for particular sentiments by providing a comma-separated list of available sentiments.
-For example, to obtain GIFs involving some kind of failure, we can use `?sentiments=fail`.
+For example, to obtain GIFs involving some kind of failure, we can use:
+
+```
+GET /random?sentiments=fail
+```
+
+The set of available shows and sentiments can be obtained by calling:
+
+```
+GET /shows
+GET /sentiments
+```
 
 ## Build instructions
 

@@ -13,7 +13,15 @@ const show_info = data.show_info
 const by_sentiment = data.by_sentiment
 const base_url = "https://raw.githubusercontent.com/LTLA/acceptable-anime-gifs/master/registry/"
 
-router.get("/random", ({ params, query }) => {
+function sample_n(n) {
+    var idx = 0
+    do {
+        idx = Math.floor(Math.random() * n)
+    } while (idx == n)
+    return idx
+}
+
+function choose_random_gif(query) {
     var allowed = undefined
     
     // Possibly restricting by show.
@@ -57,7 +65,6 @@ router.get("/random", ({ params, query }) => {
     }
 
     // Randomly choosing a GIF within the set.
-    var chosen
     if (allowed !== undefined) {
         if (allowed.length == 0) {
             const err = new Error("no valid GIF for the specified combination of filters")
@@ -66,20 +73,17 @@ router.get("/random", ({ params, query }) => {
         }
 
         const choices = Array.from(allowed)
-        var idx = 0
-        do {
-            idx = Math.floor(Math.random() * choices.length)
-        } while (idx == choices.length)
-        chosen = all_gifs[choices[idx]]
-    } else {
-        var idx = 0
-        do {
-            idx = Math.floor(Math.random() * all_gifs.length)
-        } while (idx == all_gifs.length)
-        chosen = all_gifs[idx]
-    }
+        var idx = sample_n(choices.length)
+        return all_gifs[choices[idx]]
 
-    // Returning quickly if requested.
+    } else {
+        var idx = sample_n(all_gifs.length)
+        return all_gifs[idx]
+    }
+}
+
+router.get("/random", ({ params, query }) => {
+    var chosen = choose_random_gif(query)
     var file_url = base_url + chosen.path 
 
     if ("formatted" in query && query["formatted"] == "false") {
@@ -115,8 +119,30 @@ router.get("/random", ({ params, query }) => {
         var char_str = char_info.join("")
 
         var resp_str = char_str + " from [" + show.name + "](https://myanimelist.net/anime/" + chosen.show_id + ")\n\n![" + chosen.path + "](" + file_url + ")"
-        return new Response(resp_str, { headers: { "Content-Type": "text/markdown; charset=utf-8" } });
+        return new Response(resp_str, { headers: { "Content-Type": "text/markdown; charset=utf-8" } })
     }
+})
+
+router.get("/random/gif", ({ params, query }) => {
+    var chosen = choose_random_gif(query)
+    var file_url = base_url + chosen.path 
+    return new Response(null, { headers: { "Location": file_url }, status: 302 })
+})
+
+router.get("/shows", (params) => {
+    var output = {}
+    for (const x in show_info) {
+        output[x] = show_info[x].name
+    }
+    return new Response(JSON.stringify(output), { headers: { "Content-Type": "application/json" } })
+})
+
+router.get("/sentiments", (params) => {
+    var output = []
+    for (const x in by_sentiment) {
+        output.push(x)
+    }
+    return new Response(JSON.stringify(output), { headers: { "Content-Type": "application/json" } })
 })
 
 router.all("*", () => new Response("404, not found!", { status: 404 }))
