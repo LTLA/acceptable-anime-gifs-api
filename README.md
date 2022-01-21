@@ -9,7 +9,7 @@ An existing deployment is available [here](https://anime-gifs.aaron-lun.workers.
 ## Available endpoints
 
 The [Swagger UI](https://ltla.github.io/acceptable-anime-gifs-api) contains a full description of the available endpoints, their parameters and their responses.
-We can summarize them briefly here:
+We summarize them briefly here:
 
 - `GET /random` returns metadata for a single randomly chosen GIF. 
 This includes the location of the GIF, the [MyAnimeList](https://myanimelist.net) identifier and name for the show, and the names and IDs of the characters involved.
