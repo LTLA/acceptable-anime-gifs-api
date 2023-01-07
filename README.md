@@ -33,7 +33,8 @@ wrangler publish # deployment
 Several secrets should be configured for deployment:
 
 - This repository contains a GitHub Action to redeploy on a push to `master`.
-  An appropriate API token should be specified in the `CF_API_TOKEN` secret.
+  The relevant account ID should be listed in the `account_id` field of the [`wrangler.toml`](wrangler.toml),
+  and an appropriate API token should be specified in the `CF_API_TOKEN` secret.
 - The D1 database ID is specified in [`wrangler.toml`](wrangler.toml). 
   This should be changed for developers wishing to deploy their own instance.
 - The `PUT /index` endpoint will automatically build the D1 database instance from the [registry build artifacts](https://github.com/LTLA/acceptable-anime-gifs/releases/tag/latest).

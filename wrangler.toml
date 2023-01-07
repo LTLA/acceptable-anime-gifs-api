@@ -1,6 +1,7 @@
 name = "anime-gifs"
 main = "src/index.js"
 compatibility_date = "2022-12-02"
+account_id = "bfb2e522e0b245720424784fcf7c04c0"
 
 [[ d1_databases ]]
 binding = "DB" # available in your Worker on `env.DB`
