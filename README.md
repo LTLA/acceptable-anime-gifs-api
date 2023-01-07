@@ -3,7 +3,7 @@
 ## Overview
 
 This repository implements a REST API for serving anime GIFs from the [Acceptable Anime GIFs registry](https://github.com/LTLA/acceptable-anime-gifs).
-The API is written with Node.js and is intended to be deployed on a Cloudflare Worker.
+The API is implemented as a Cloudflare Worker using the D1 SQL database for handling metadata.
 An existing deployment is available [here](https://anime-gifs.aaron-lun.workers.dev) on the Cloudflare's free tier.
 
 ## Available endpoints
@@ -23,19 +23,20 @@ All GIFs are currently hosted in the registry's GitHub repository.
 
 ## Build instructions
 
-To keep things simple, we package the GIF manifest into the application rather than requiring the Worker to perform external calls.
-This is done by running the `preprocess.js` script on the manifest artifacts produced by the [GIF registry's workflows](https://github.com/LTLA/acceptable-anime-gifs/actions),
-which produces a `manifest.js` Node module that is imported by `index.js`.
-The API can then directly interrogate the metadata for each GIF without the need for further fetch requests.
+Testing and deployment uses te standard `wrangler` workflow:
 
 ```sh
-curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/gifs.json > gifs.json
-curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/shows.json > shows.json
-node preprocess.js
+wrangler dev # testing
+wrangler publish # deployment
 ```
 
-Deployment is performed using the usual `wrangler publish` method for Cloudflare Workers.
-This repository contains a GitHub Action to redeploy on a push to `master` and nightly.
-In this manner, we can incorporate updates to the GIF registry in a timely manner.
-Currently, it deploys to my own Cloudflare account ID (see `wrangler.toml`) and requires the appropriate API token in the `CF_API_TOKEN` secret.
-Developers wishing to create their own deployment can simply fork this repository and replace those two parameters.
+Several secrets should be configured for deployment:
+
+- This repository contains a GitHub Action to redeploy on a push to `master`.
+  An appropriate API token should be specified in the `CF_API_TOKEN` secret.
+- The D1 database ID is specified in [`wrangler.toml`](wrangler.toml). 
+  This should be changed for developers wishing to deploy their own instance.
+- The `PUT /index` endpoint will automatically build the D1 database instance from the [registry build artifacts](https://github.com/LTLA/acceptable-anime-gifs/releases/tag/latest).
+  This requires the `Authorization: Bearer <secret>` header in the request,
+  where `secret` is a secret that should be registered with the Cloudflare Worker via `wrangler secret put`.
+
