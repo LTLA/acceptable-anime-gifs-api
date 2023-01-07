@@ -142,6 +142,15 @@ CREATE TABLE IF NOT EXISTS gif_sentiment (
 }
 
 router.put('/index', async (request, env, context) => {
+    if (!request.headers.has("Authorization")) {
+        throw new HttpError("no secret supplied for indexing", 401);
+    }
+
+    let secret = request.headers.get("Authorization");
+    if (secret != "Bearer " + env.INDEX_SECRET) {
+        throw new HttpError("incorrect secret for indexing", 403);
+    }
+
     await build_index(env);
     return new Response(null, { status: 202 });
 });
