@@ -1,8 +1,9 @@
 name = "anime-gifs"
-type = "webpack"
+main = "src/index.js"
+compatibility_date = "2022-12-02"
 
-account_id = "bfb2e522e0b245720424784fcf7c04c0"
-workers_dev = true
-route = ""
-zone_id = ""
-compatibility_date = "2021-11-25"
+[[ d1_databases ]]
+binding = "DB" # available in your Worker on `env.DB`
+database_name = "anime-gifs"
+database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
+preview_database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"

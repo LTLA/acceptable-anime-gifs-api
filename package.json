@@ -1,20 +1,15 @@
 {
     "name": "anime-gifs",
     "private": true,
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "REST API for random anime GIFs",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "format": "prettier --write '**/*.{js,css,json,md}'"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "LTLA <infinite.monkeys.with.keyboards@gmail.com>",
     "license": "ISC",
-    "devDependencies": {
-        "prettier": "^1.17.0"
-    },
     "dependencies": {
-        "itty-router": "^2.1.9",
-        "serverless-cloudflare-workers": "^1.2.0"
+        "itty-router": "^2.6.6"
     }
 }
