@@ -1,9 +1,7 @@
 on:
   push:
-  pull_request:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    branches:
+      - master
 
 name: Deploy to Cloudflare Workers
 
@@ -12,17 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-      - name: Collate manifest
-        run: |
-          curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/gifs.json > gifs.json
-          curl -L https://github.com/LTLA/acceptable-anime-gifs/releases/download/latest/shows.json > shows.json
-          node preprocess.js
+        uses: actions/checkout@v3
       - name: Deploy to Cloudflare
-        if: github.ref == 'refs/heads/master'
-        uses: cloudflare/wrangler-action@1.3.0
-        with: 
+        uses: cloudflare/wrangler-action@2.0.0
           apiToken: ${{ secrets.CF_API_TOKEN }}
 
