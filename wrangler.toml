@@ -6,3 +6,4 @@ compatibility_date = "2022-12-02"
 binding = "DB" # available in your Worker on `env.DB`
 database_name = "anime-gifs"
 database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
+preview_database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
