@@ -24,27 +24,23 @@ async function build_index(env) {
         env.DB.prepare(`
 CREATE TABLE IF NOT EXISTS gifs (
     gif_path TEXT PRIMARY KEY, 
-    show_id TEXT NOT NULL,
-    origin_url TEXT NOT NULL
+    show_id TEXT NOT NULL
 )`),
+
         env.DB.prepare("DROP TABLE IF EXISTS shows"),
         env.DB.prepare(`
 CREATE TABLE IF NOT EXISTS shows (
     show_id TEXT PRIMARY KEY,
     show_name TEXT NOT NULL
 )`),
+
         env.DB.prepare("DROP TABLE IF EXISTS characters"),
         env.DB.prepare(`
 CREATE TABLE IF NOT EXISTS characters (
     character_id TEXT PRIMARY KEY,
     character_name TEXT NOT NULL
 )`),
-        env.DB.prepare("DROP TABLE IF EXISTS character_show"),
-        env.DB.prepare(`
-CREATE TABLE IF NOT EXISTS character_show (
-    show_id TEXT NOT NULL,
-    character_id TEXT NOT NULL
-)`),
+
         env.DB.prepare("DROP TABLE IF EXISTS character_gif"),
         env.DB.prepare(`
 CREATE TABLE IF NOT EXISTS character_gif (
@@ -71,8 +67,8 @@ CREATE TABLE IF NOT EXISTS gif_sentiment (
 
     for (const gif of gif_body) {
         statements.push(
-            env.DB.prepare("INSERT into gifs (gif_path, show_id, origin_url) VALUES (?, ?, ?)")
-                .bind(gif.path, gif.show_id, gif.url)
+            env.DB.prepare("INSERT into gifs (gif_path, show_id) VALUES (?, ?)")
+                .bind(gif.path, gif.show_id)
         );
 
         for (const s of gif.sentiments) {
@@ -115,10 +111,6 @@ CREATE TABLE IF NOT EXISTS gif_sentiment (
             }
 
             character_to_id[k] = v;
-            statements.push(
-                env.DB.prepare("INSERT into character_show (show_id, character_id) VALUES (?, ?)")
-                    .bind(show.id, v)
-            );
         }
     }
 
@@ -136,6 +128,13 @@ CREATE TABLE IF NOT EXISTS gif_sentiment (
             );
         }
     }
+
+    // Adding loads of indices on joinable columns that aren't primary keys.
+    statements.push(env.DB.prepare("CREATE INDEX index_gifs_show_id ON gifs(show_id)"));
+    statements.push(env.DB.prepare("CREATE INDEX index_character_gif1 ON character_gif(gif_path)"));
+    statements.push(env.DB.prepare("CREATE INDEX index_character_gif2 ON character_gif(character_id)"));
+    statements.push(env.DB.prepare("CREATE INDEX index_gif_sentiment1 ON gif_sentiment(gif_path)"));
+    statements.push(env.DB.prepare("CREATE INDEX index_gif_sentiment2 ON gif_sentiment(sentiment)"));
 
     await env.DB.batch(statements);
     return null;
@@ -159,7 +158,7 @@ router.put('/index', async (request, env, context) => {
  *************************************************/
 
 function choose_random_gif(query, env) {
-    let rquery = "SELECT gifs.gif_path, gifs.show_id FROM gifs";
+    let rquery = "SELECT gifs.gif_path FROM gifs";
     let prework = [];
  
     // Possibly restricting by show.
@@ -188,7 +187,11 @@ function choose_random_gif(query, env) {
     }
 
     rquery += "\nORDER BY RANDOM() LIMIT 1";
-    let randomizer = "CREATE TEMPORARY TABLE random AS\n" + rquery;
+
+    // The subquery gets the relevant gif_path (if any), and then the outer
+    // query gets the show ID. Check out https://stackoverflow.com/a/24591688
+    // for the rationale regarding performance.
+    let randomizer = "CREATE TEMPORARY TABLE random AS SELECT gif_path, show_id FROM gifs WHERE gif_path IN (" + rquery + ")"; 
 
     return [
         ...prework,
