@@ -7,4 +7,4 @@ account_id = "bfb2e522e0b245720424784fcf7c04c0"
 binding = "DB" # available in your Worker on `env.DB`
 database_name = "anime-gifs"
 database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
-preview_database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
+preview_database_id = "561c8663-23a5-4dae-8e45-13304979903b"
