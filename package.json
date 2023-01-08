@@ -1,14 +1,13 @@
 {
     "name": "anime-gifs",
-    "private": true,
     "version": "2.0.0",
-    "description": "REST API for random anime GIFs",
-    "main": "index.js",
+    "description": "REST API for serving random anime GIFs",
+    "main": "src/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "LTLA <infinite.monkeys.with.keyboards@gmail.com>",
-    "license": "ISC",
+    "license": "MIT",
     "dependencies": {
         "itty-router": "^2.6.6"
     }
