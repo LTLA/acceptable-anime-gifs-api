@@ -1,14 +1,19 @@
 {
     "name": "anime-gifs",
     "version": "2.0.0",
+    "type": "module",
     "description": "REST API for serving random anime GIFs",
     "main": "src/index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --runInBand"
     },
     "author": "LTLA <infinite.monkeys.with.keyboards@gmail.com>",
     "license": "MIT",
     "dependencies": {
         "itty-router": "^2.6.6"
+    },
+    "devDependencies": {
+        "isomorphic-fetch": "^3.0.0",
+        "jest": "^29.3.1"
     }
 }

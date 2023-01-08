@@ -218,7 +218,7 @@ INNER JOIN random ON character_gif.gif_path = random.gif_path`)
     let res = await env.DB.batch(statements);
     let has_show = res[offset].results.length > 0;
     if (!has_show) {
-        throw new HttpError("no GIFs found with the specified restrictions", 404);
+        throw new HttpError("no GIFs found with the specified restrictions", 400);
     }
     
     let gif_path = res[offset].results[0].gif_path;
@@ -275,15 +275,15 @@ router.get("/random/markdown", async (request, env, context) => {
 
 router.get("/random/gif", async (request, env, context) => {
     var statements = choose_random_gif(request.query, env)
-    let offset = choice.length - 1;
+    let offset = statements.length - 1;
 
     let res = await env.DB.batch(statements);
     let has_show = res[offset].results.length > 0;
     if (!has_show) {
-        throw new HttpError("no GIFs found with the specified restrictions", 404);
+        throw new HttpError("no GIFs found with the specified restrictions", 400);
     }
 
-    var file_url = base_url + chosen.path;
+    var file_url = base_url + res[offset].results[0].gif_path;
     return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', "Location": file_url }, status: 302 });
 })
 
