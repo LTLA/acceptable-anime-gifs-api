@@ -6,5 +6,5 @@ account_id = "bfb2e522e0b245720424784fcf7c04c0"
 [[ d1_databases ]]
 binding = "DB" # available in your Worker on `env.DB`
 database_name = "anime-gifs"
-database_id = "497fab6d-30a8-40b6-9d07-715b29b041b4"
-preview_database_id = "561c8663-23a5-4dae-8e45-13304979903b"
+database_id = "4db71605-0b7d-4ee4-bc21-c574c97d0a42"
+preview_database_id = "df801c9d-d264-4dad-b32e-b79628e0b656"
