@@ -157,78 +157,77 @@ router.put('/index', async (request, env, context) => {
 /*************************************************
  *************************************************/
 
-function choose_random_gif(query, env) {
+function choose_random_gif(query, env, details = false) {
     let rquery = "SELECT gifs.gif_path FROM gifs";
-    let prework = [];
+    let fquery = [];
+    let params = [];
  
     // Possibly restricting by show.
     if ("shows" in query) {
-        prework.push(env.DB.prepare("DROP TABLE IF EXISTS restricted_shows"));
-        prework.push(env.DB.prepare("CREATE TEMPORARY TABLE restricted_shows (show_id TEXT PRIMARY KEY)"));
-
         let allowed = Array.from(new Set(query["shows"].split(",")));
-        for (const x of allowed) {
-            prework.push(env.DB.prepare("INSERT into restricted_shows (show_id) VALUES (?)").bind(x));
+        if (allowed.length) {
+            let filters = [];
+            for (const x of allowed) {
+                params.push(x);
+                filters.push("gifs.show_id = ?" + String(params.length));
+            }
+            fquery.push("(" + filters.join(" OR ") + ")");
         }
-        rquery += "\nINNER JOIN restricted_shows ON restricted_shows.show_id = gifs.show_id";
     }
 
     // Possibly restricting by sentiment.
     if ("sentiments" in query) {
-        prework.push(env.DB.prepare("DROP TABLE IF EXISTS restricted_sentiments"));
-        prework.push(env.DB.prepare("CREATE TEMPORARY TABLE restricted_sentiments (sentiment TEXT PRIMARY KEY)"));
-
         let allowed = Array.from(new Set(query["sentiments"].split(",")));
-        for (const x of allowed) {
-            prework.push(env.DB.prepare("INSERT into restricted_sentiments (sentiment) VALUES (?)").bind(x));
+        if (allowed.length) {
+            let filters = [];
+            rquery += "\nINNER JOIN gif_sentiment ON gif_sentiment.gif_path = gifs.gif_path";
+            for (const x of allowed) {
+                params.push(x);
+                filters.push("gif_sentiment.sentiment = ?" + String(params.length));
+            }
+            fquery.push("(" + filters.join(" OR ") + ")");
         }
-        rquery += "\nINNER JOIN gif_sentiment ON gif_sentiment.gif_path = gifs.gif_path";
-        rquery += "\nINNER JOIN restricted_sentiments ON restricted_sentiments.sentiment = gif_sentiment.sentiment";
     }
 
+    if (fquery.length) {
+        rquery += "\nWHERE " + fquery.join(" AND ");
+    }
     rquery += "\nORDER BY RANDOM() LIMIT 1";
 
     // The subquery gets the relevant gif_path (if any), and then the outer
     // query gets the show ID. Check out https://stackoverflow.com/a/24591688
     // for the rationale regarding performance.
-    let randomizer = "CREATE TEMPORARY TABLE random AS SELECT gif_path, show_id FROM gifs WHERE gif_path IN (" + rquery + ")"; 
+    let randomizer = "SELECT gif_path, show_id FROM gifs WHERE gif_path IN (" + rquery + ")"; 
+    console.log(randomizer);
+    console.log(params);
 
-    return [
-        ...prework,
-        env.DB.prepare("DROP TABLE IF EXISTS random"),
-        env.DB.prepare(randomizer),
-        env.DB.prepare("SELECT gif_path FROM random")
-    ];
+    return env.DB.prepare(randomizer).bind(...params).first();
 }
 
 async function choose_random_gif_with_details(query, env) {
-    let choice = choose_random_gif(query, env);
-    let offset = choice.length - 1;
+    let choice = await choose_random_gif(query, env);
+    if (choice === null) {
+        throw new HttpError("no GIFs found with the specified restrictions", 400);
+    }
 
     let statements = [
-        ...choice,
-        env.DB.prepare(`SELECT show_name, shows.show_id FROM shows 
-INNER JOIN random ON shows.show_id = random.show_id`),
+        env.DB.prepare(`SELECT show_name, shows.show_id FROM shows WHERE shows.show_id = ?`).bind(choice.show_id),
         env.DB.prepare(`SELECT character_name, characters.character_id FROM characters 
 INNER JOIN character_gif ON characters.character_id = character_gif.character_id
-INNER JOIN random ON character_gif.gif_path = random.gif_path`)
+WHERE character_gif.gif_path = ?`).bind(choice.gif_path)
     ];
 
     // Extracting useful details.
     let res = await env.DB.batch(statements);
-    let has_show = res[offset].results.length > 0;
-    if (!has_show) {
-        throw new HttpError("no GIFs found with the specified restrictions", 400);
-    }
-    
-    let gif_path = res[offset].results[0].gif_path;
-    let show_details = res[offset + 1].results;
+
+    let gif_path = choice.gif_path;
+    let show_details = res[0].results;
     if (show_details.length != 1) {
         throw new Error("expected exactly one show for the selected GIF '" + gif_path + "'");
     }
     let show_info = show_details[0];
 
-    let character_info = res[offset + 2].results;
+    let character_info = res[1].results;
     return { gif_path, show_info, character_info };
 }
 
@@ -274,16 +273,12 @@ router.get("/random/markdown", async (request, env, context) => {
 })
 
 router.get("/random/gif", async (request, env, context) => {
-    var statements = choose_random_gif(request.query, env)
-    let offset = statements.length - 1;
-
-    let res = await env.DB.batch(statements);
-    let has_show = res[offset].results.length > 0;
-    if (!has_show) {
+    let res = await choose_random_gif(request.query, env);
+    if (res === null) {
         throw new HttpError("no GIFs found with the specified restrictions", 400);
     }
 
-    var file_url = base_url + res[offset].results[0].gif_path;
+    var file_url = base_url + res.gif_path;
     return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', "Location": file_url }, status: 302 });
 })
 
